@@ -1,64 +1,58 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Courses.css'; // We'll create this CSS file
+import './Courses.css';
 
 function Courses() {
-  const [courses, setCourses] = useState([]);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  // Pre-filled course data
+  const initialCourses = [
+    { _id: '1', title: 'Web Development', description: 'Learn MERN stack', progress: 0 },
+    { _id: '2', title: 'Data Structures & Algorithms', description: 'Master algorithms with C++', progress: 0 },
+    { _id: '3', title: 'Python Programming', description: 'From beginner to advanced Python', progress: 0 },
+    { _id: '4', title: 'Machine Learning', description: 'Introduction to ML and AI', progress: 0 },
+    { _id: '5', title: 'Mathematics for CS', description: 'Discrete Math & Linear Algebra', progress: 0 },
+    { _id: '6', title: 'Cybersecurity Basics', description: 'Learn ethical hacking & security', progress: 0 },
+    { _id: '7', title: 'Cloud Computing', description: 'AWS, Azure fundamentals', progress: 0 },
+    { _id: '8', title: 'Java Programming', description: 'Object-Oriented Programming with Java', progress: 0 },
+    { _id: '9', title: 'React & Frontend', description: 'Build modern web apps using React', progress: 0 },
+    { _id: '10', title: 'Communication Skills', description: 'Enhance professional communication', progress: 0 },
+  ];
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/courses')
-      .then(response => setCourses(response.data))
-      .catch(error => console.error('Error fetching courses:', error));
-  }, []);
+  const [courses, setCourses] = useState(initialCourses);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
 
-  const addCourse = () => {
-    if (!title.trim() || !description.trim()) return;
-    axios.post('http://localhost:5000/courses', { title, description })
-      .then(response => {
-        setCourses([...courses, response.data]);
-        setTitle('');
-        setDescription('');
-      })
-      .catch(error => console.error('Error adding course:', error));
+  // Enroll into a course
+  const enrollCourse = (courseId) => {
+    if (!enrolledCourses.includes(courseId)) {
+      setEnrolledCourses([...enrolledCourses, courseId]);
+      alert('Enrolled successfully!');
+    } else {
+      alert('Already enrolled in this course.');
+    }
   };
 
   return (
     <div className="courses-container">
       <h1>Courses</h1>
 
-      {/* Add Course Form */}
-      <div className="course-form">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Course Title"
-        />
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Course Description"
-        />
-        <button onClick={addCourse}>Add Course</button>
-      </div>
-
-      {/* Courses List */}
       <div className="cards-container">
         {courses.map(course => (
           <div key={course._id} className="course-card">
             <h3>{course.title}</h3>
             <p>{course.description}</p>
-            {/* Placeholder progress bar */}
+
             <div className="progress-bar">
-              <div className="progress" style={{ width: `${course.progress || 0}%` }}></div>
+              <div className="progress" style={{ width: `${course.progress}%` }}></div>
             </div>
-            <p className="progress-text">{course.progress || 0}% completed</p>
+            <p className="progress-text">{course.progress}% completed</p>
+
+            <button
+              className={enrolledCourses.includes(course._id) ? 'enrolled' : 'enroll-btn'}
+              onClick={() => enrollCourse(course._id)}
+              disabled={enrolledCourses.includes(course._id)}
+            >
+              {enrolledCourses.includes(course._id) ? 'Enrolled' : 'Enroll'}
+            </button>
           </div>
         ))}
-        {courses.length === 0 && <p>No courses available yet.</p>}
       </div>
     </div>
   );
