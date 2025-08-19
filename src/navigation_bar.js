@@ -1,0 +1,49 @@
+import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Link, NavLink } from "react-router-dom";
+
+export default function NavigationBar() {
+  return (
+    <Navbar bg="light" expand="lg" className="shadow-sm">
+      <Container>
+        {/* Website Name */}
+        <Navbar.Brand as={Link} to="/">
+          SKILLBRIDGE
+        </Navbar.Brand>
+
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+          {/* Page Links */}
+          <Nav className="me-auto">
+            <Nav.Link as={NavLink} to="/page1">
+              Page 1
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/page2">
+              Page 2
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/page3">
+              Page 3
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/page4">
+              Page 4
+            </Nav.Link>
+          </Nav>
+
+          {/* Login/Register */}
+          <Nav>
+            <Button
+              as={Link}
+              to="/login"
+              variant="outline-primary"
+              className="me-2"
+            >
+              Login
+            </Button>
+            <Button as={Link} to="/register" variant="primary">
+              Register
+            </Button>
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
+}
