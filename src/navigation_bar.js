@@ -14,11 +14,11 @@ export default function NavigationBar() {
         <Navbar.Collapse id="basic-navbar-nav">
           {/* Page Links */}
           <Nav className="me-auto">
-            <Nav.Link as={NavLink} to="/page1">
-              Page 1
+            <Nav.Link as={NavLink} to="/courses">
+              Courses
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/page2">
-              Page 2
+            <Nav.Link as={NavLink} to="/dashboard">
+              Dashboard
             </Nav.Link>
             <Nav.Link as={NavLink} to="/page3">
               Page 3
