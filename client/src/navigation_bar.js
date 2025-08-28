@@ -23,8 +23,8 @@ export default function NavigationBar() {
             <Nav.Link as={NavLink} to="/page3">
               Page 3
             </Nav.Link>
-            <Nav.Link as={NavLink} to="/page4">
-              Page 4
+            <Nav.Link as={NavLink} to="/networks">
+              Networks
             </Nav.Link>
           </Nav>
 
