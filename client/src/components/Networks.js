@@ -1,3 +1,4 @@
+// components/Networks.js
 import React, { useState } from 'react';
 
 // Sample user data
@@ -13,7 +14,7 @@ const userData = [
     id: 2,
     name: "Adnan Mia",
     role: "Data Scientist",
-    skills: ["Python", "Machine Learning", "Pandas"],
+    skills: ["Python", "AI", "Pandas"],
     connected: false
   },
   {
@@ -114,7 +115,7 @@ const UserCard = ({ user, onConnect }) => {
         gap: '8px',
         marginBottom: '24px'
       }}>
-        {user.skills.filter(skill => skill).map((skill, index) => ( // Added filter to remove any undefined skills
+        {user.skills.filter(skill => skill).map((skill, index) => (
           <span
             key={index}
             style={{
@@ -179,8 +180,8 @@ const SearchBar = ({ searchTerm, onSearchChange }) => {
   );
 };
 
-// Main App Component
-function App() {
+// Main Networks Component
+function Networks() {
   const [users, setUsers] = useState(userData);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -195,7 +196,7 @@ function App() {
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.skills.some(skill => skill && skill.toLowerCase().includes(searchTerm.toLowerCase())) // Added safety check for undefined skills
+    user.skills.some(skill => skill && skill.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -252,4 +253,4 @@ function App() {
   );
 }
 
-export default App;
+export default Networks;
