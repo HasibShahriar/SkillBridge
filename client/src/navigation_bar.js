@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 
 export default function NavigationBar() {
   return (
-    <Navbar bg="light" expand="lg" className="shadow-sm">
+    <Navbar bg="dark" expand="lg" className="shadow-sm">
       <Container>
         {/* Website Name */}
         <Navbar.Brand as={Link} to="/">
