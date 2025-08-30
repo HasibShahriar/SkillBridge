@@ -14,7 +14,7 @@ const AddUser = ({ onUserAdded }) => {
     setIsSubmitting(true);
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/user", 
+        "http://localhost:5000/api/user/register", 
         { firstname, lastname, email, password }, 
         { headers: { "Content-Type": "application/json" } } 
       );
