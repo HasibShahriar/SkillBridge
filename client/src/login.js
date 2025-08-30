@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import './login.css'; // Import the CSS file
 
 const Login = ({ onToggleForm, onLogin }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -21,7 +23,7 @@ const Login = ({ onToggleForm, onLogin }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/user", formData);
+      const res = await axios.post("http://localhost:5000/api/user/login", formData);
       setMessage(res.data.message);
       if (onLogin) {
         onLogin(formData);
@@ -79,7 +81,7 @@ const Login = ({ onToggleForm, onLogin }) => {
             <button
               type="button"
               className="toggle-button"
-              onClick={onToggleForm}
+              onClick={() => navigate("/register")}
             >
               Register here
             </button>
