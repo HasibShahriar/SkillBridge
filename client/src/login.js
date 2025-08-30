@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from "axios";
+import './login.css'; // Import the CSS file
 
 const Login = ({ onToggleForm, onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -14,83 +17,75 @@ const Login = ({ onToggleForm, onLogin }) => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically make an API call to authenticate
-    console.log('Login data:', formData);
-    if (onLogin) {
-      onLogin(formData);
+    setIsSubmitting(true);
+    try {
+      const res = await axios.post("http://localhost:5000/api/user", formData);
+      setMessage(res.data.message);
+      if (onLogin) {
+        onLogin(formData);
+      }
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Login failed");
+    } finally {
+      setIsSubmitting(false);
     }
+    console.log('Login data:', formData);
   };
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-4">
-          <div className="card shadow">
-            <div className="card-body">
-              <h3 className="card-title text-center mb-4">Login</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                  <label htmlFor="email" className="form-label">Email address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">Password</label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div className="mb-3 form-check">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="rememberMe"
-                  />
-                  <label className="form-check-label" htmlFor="rememberMe">
-                    Remember me
-                  </label>
-                </div>
-                <button type="submit" className="btn btn-primary w-100 mb-3">
-                  Login
-                </button>
-                <div className="text-center">
-                  <a href="#!" className="text-decoration-none">
-                    Forgot password?
-                  </a>
-                </div>
-              </form>
-              <hr />
-              <div className="text-center">
-                <p>
-                  Don't have an account?{' '}
-                  <button
-                    type="button"
-                    className="btn btn-link p-0 text-decoration-none"
-                    onClick={onToggleForm}
-                  >
-                    Register here
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
+    <div className="form-container">
+      <form className="modern-form" onSubmit={handleSubmit}>
+        <h2 className="form-title">Login to Your Account</h2>
+        
+        <div className="input-group">
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+          <label className="form-label">Email Address</label>
         </div>
-      </div>
+        
+        <div className="input-group">
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="form-input"
+          />
+          <label className="form-label">Password</label>
+        </div>
+
+        {message && <div className="message">{message}</div>}
+
+        <button 
+          type="submit" 
+          className="submit-button"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Logging in...' : 'Login'}
+        </button>
+        
+        <div className="toggle-form">
+          <p>
+            Don't have an account?{' '}
+            <button
+              type="button"
+              className="toggle-button"
+              onClick={onToggleForm}
+            >
+              Register here
+            </button>
+          </p>
+        </div>
+      </form>
     </div>
   );
 };

@@ -1,13 +1,22 @@
 import User from '../models/User.js';
 
-export const getUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    res.json({ message: "Login successful", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const newUser = async (req, res) => {
   try {
