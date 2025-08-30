@@ -7,6 +7,8 @@ import Courses from "./components/Courses";
 import Dashboard from "./components/Dashboard";
 import Home from "./components/home";
 import Networks from "./components/Networks"; 
+import Login from "./login";
+import Register from "./register";
 
 function App() {
   return (
@@ -18,8 +20,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/page3" element={<h2>Page 3</h2>} />
         <Route path="/networks" element={<Networks/>} />  
-        <Route path="/login" element={<h2>Login Page</h2>} />
-        <Route path="/register" element={<h2>Register Page</h2>} />
+        <Route path="/login" element={<Login/>} />
+        <Route path="/register" element={<Register/>} />
       </Routes>
     </BrowserRouter>
   );
