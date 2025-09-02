@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./register.css";
 
-const AddUser = ({ onUserAdded }) => {
+const Register = () => {
+  const navigate = useNavigate();
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,12 +15,17 @@ const AddUser = ({ onUserAdded }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/user/register", 
-        { firstname, lastname, email, password }, 
-        { headers: { "Content-Type": "application/json" } } 
-      );
-      onUserAdded(res.data); 
+      await axios.post("http://localhost:5000/api/user/register", {
+        firstname,
+        lastname,
+        email,
+        password
+      }, { headers: { "Content-Type": "application/json" } });
+
+      // redirect to login page after success
+      navigate("/login");
+
+      // reset form
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -91,4 +98,4 @@ const AddUser = ({ onUserAdded }) => {
   );
 };
 
-export default AddUser;
+export default Register;
