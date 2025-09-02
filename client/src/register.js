@@ -9,11 +9,24 @@ const Register = () => {
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm_password, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if(password.length < 8) {
+      alert("Password must be at least 8 characters long");
+      setIsSubmitting(false);
+      return;
+    }
+    if(password !== confirm_password) {
+      alert("Passwords do not match");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await axios.post("http://localhost:5000/api/user/register", {
         firstname,
@@ -30,6 +43,7 @@ const Register = () => {
       setLastName("");
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
     } catch (err) {
       console.error(err);
     } finally {
@@ -84,6 +98,17 @@ const Register = () => {
             className="form-input"
           />
           <label className="form-label">Password</label>
+        </div>
+
+        <div className="input-group">
+          <input
+            type="password"
+            value={confirm_password}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="form-input"
+          />
+          <label className="form-label">Confirm Password</label>
         </div>
 
         <button 
