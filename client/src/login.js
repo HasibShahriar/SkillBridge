@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import './login.css'; // Import the CSS file
+import './login.css';
 
-const Login = ({ onToggleForm, onLogin }) => {
+const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -25,22 +19,19 @@ const Login = ({ onToggleForm, onLogin }) => {
     try {
       const res = await axios.post("http://localhost:5000/api/user/login", formData);
       setMessage(res.data.message);
-      if (onLogin) {
-        onLogin(formData);
-      }
+      navigate("/dashboard"); // redirect after successful login
     } catch (error) {
       setMessage(error.response?.data?.message || "Login failed");
     } finally {
       setIsSubmitting(false);
     }
-    console.log('Login data:', formData);
   };
 
   return (
     <div className="form-container">
       <form className="modern-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Login to Your Account</h2>
-        
+
         <div className="input-group">
           <input
             type="email"
@@ -52,7 +43,7 @@ const Login = ({ onToggleForm, onLogin }) => {
           />
           <label className="form-label">Email Address</label>
         </div>
-        
+
         <div className="input-group">
           <input
             type="password"
@@ -74,7 +65,7 @@ const Login = ({ onToggleForm, onLogin }) => {
         >
           {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
-        
+
         <div className="toggle-form">
           <p>
             Don't have an account?{' '}
