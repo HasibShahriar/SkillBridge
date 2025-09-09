@@ -1,18 +1,23 @@
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
-export default function NavigationBar() {
+export default function NavigationBar({ user, onLogout }) {
+  const navigate = useNavigate();
+
+  const handleLogoutClick = () => {
+    onLogout();     
+    navigate("/");    
+  };
+  
   return (
-    <Navbar bg="dark" expand="lg" className="shadow-sm">
+    <Navbar bg="dark" expand="lg" className="shadow-sm" variant="dark">
       <Container>
-        {/* Website Name */}
         <Navbar.Brand as={Link} to="/">
           SKILLBRIDGE
         </Navbar.Brand>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          {/* Page Links */}
           <Nav className="me-auto">
             <Nav.Link as={NavLink} to="/dashboard">
               Dashboard
@@ -25,20 +30,15 @@ export default function NavigationBar() {
             </Nav.Link>
           </Nav>
 
-          {/* Login/Register */}
-          <Nav>
+          {user && (
             <Button
-              as={Link}
-              to="/login"
-              variant="outline-primary"
-              className="me-2"
+              variant="outline-light"
+              onClick={handleLogoutClick}
+              className="ms-auto"
             >
-              Login
+              Logout
             </Button>
-            <Button as={Link} to="/register" variant="primary">
-              Register
-            </Button>
-          </Nav>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>
