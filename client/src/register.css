@@ -99,7 +99,21 @@
   box-shadow: none;
 }
 
-/* Responsive design */
+.success-message {
+  color: #fff;
+  background-color: #28a745;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  text-align: center;
+  animation: fadeOut 1.5s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 @media (max-width: 480px) {
   .modern-form {
     padding: 1.5rem;

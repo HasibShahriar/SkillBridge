@@ -12,18 +12,32 @@ const Register = ({ onLogin }) => {
   const [confirm_password, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const nameRegex = /^[A-Za-z]+( [A-Za-z]+)*$/;
+    if (!nameRegex.test(firstname)) {
+      setMessage("First name can contain letters and single spaces only");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!nameRegex.test(lastname)) {
+      setMessage("Last name can contain letters and single spaces only");
+      setIsSubmitting(false);
+      return;
+    }
+
     if(password.length < 8) {
-      alert("Password must be at least 8 characters long");
+      setMessage("Password must be at least 8 characters long");
       setIsSubmitting(false);
       return;
     }
     if(password !== confirm_password) {
-      alert("Passwords do not match");
+      setMessage("Passwords do not match");
       setIsSubmitting(false);
       return;
     }
@@ -39,13 +53,15 @@ const Register = ({ onLogin }) => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       onLogin(response.data.user);
-      alert("Registration successful! Redirecting to dashboard...");
-      navigate("/dashboard");
       setFirstName("");
       setLastName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      setSuccess("Registration successful! Redirecting...");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed");
     } finally {
@@ -114,6 +130,7 @@ const Register = ({ onLogin }) => {
         </div>
 
         {message && <div className="message">{message}</div>}
+        {success && <div className="success-message">{success}</div>}
 
         <button 
           type="submit" 
