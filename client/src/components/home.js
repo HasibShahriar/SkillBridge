@@ -18,7 +18,7 @@ export default function Home() {
             <br />
             and directly access jobs, gigs, and scholarships all in one place.
           </p>
-          <Button variant="primary" size="lg" className="rounded-pill px-4 mt-3">
+          <Button variant="primary" size="lg" className="rounded-pill px-4 mt-3" href="/login">
             Get Started
           </Button>
         </Container>
@@ -80,7 +80,7 @@ export default function Home() {
           <p className="cta-subtitle">
             Build skills, find opportunities, and unlock your future.
           </p>
-          <Button variant="success" size="lg" className="rounded-pill px-5">
+          <Button variant="success" size="lg" className="rounded-pill px-5" href="/register">
             Join Now
           </Button>
         </Container>

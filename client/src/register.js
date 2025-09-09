@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from './api';
 import "./register.css";
 
 const Register = () => {
@@ -28,15 +28,19 @@ const Register = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/user/register", {
+      const response = await api.post("http://localhost:5000/api/user/register", {
         firstname,
         lastname,
         email,
         password
       }, { headers: { "Content-Type": "application/json" } });
 
-      // redirect to login page after success
-      navigate("/login");
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      alert("Registration successful! Redirecting to dashboard...");
+      setTimeout(() => {
+        navigate("/dashboard"); // redirect to dashboard after successful registration
+      }, 1500);
 
       // reset form
       setFirstName("");
