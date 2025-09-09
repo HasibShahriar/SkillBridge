@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from './api';
 import "./register.css";
 
-const Register = () => {
+const Register = ({ onLogin }) => {
   const navigate = useNavigate();
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
@@ -38,10 +38,12 @@ const Register = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       alert("Registration successful! Redirecting to dashboard...");
+      onLogin(response.data.user);
+      navigate("/dashboard");
+      /*
       setTimeout(() => {
         navigate("/dashboard"); // redirect to dashboard after successful registration
-      }, 1500);
-
+      }, 1500);*/
       // reset form
       setFirstName("");
       setLastName("");
