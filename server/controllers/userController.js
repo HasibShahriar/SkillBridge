@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 export const loginUser = async (req, res) => {
   try {
@@ -26,7 +27,6 @@ export const loginUser = async (req, res) => {
         email: user.email
       }
     });
-    res.json({ message: "Login successful", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -40,14 +40,27 @@ export const newUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    /*
+    const validationRes = await axios.get("https://api.zerobounce.net/v2/validate", {
+      params: {
+        api_key: process.env.ZERBOUNCE_API_KEY,
+        email: email
+      }
+    });
+
+    if (validationRes.data.status !== "valid") {
+      return res.status(400).json({ message: "Invalid email address." });
+    }
+    */
+
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const newUser = new User({ firstname, lastname, email, password });
     await newUser.save();
-    res.status(201).json({ message: "User created successfully", user: newUser });
 
     const token = jwt.sign(
       { id: newUser._id, email: newUser.email },
@@ -64,13 +77,7 @@ export const newUser = async (req, res) => {
         email: newUser.email
       }
     }); 
-    /*
-    const { firstname, lastname, email, password } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash password
-    const user = new User({ firstname, lastname, email, password: hashedPassword });
-    await user.save();
-    res.status(201).json(user);
-    */
+    
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
