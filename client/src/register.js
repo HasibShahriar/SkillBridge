@@ -10,6 +10,7 @@ const Register = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm_password, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -34,24 +35,19 @@ const Register = ({ onLogin }) => {
         email,
         password
       }, { headers: { "Content-Type": "application/json" } });
-
+      setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      alert("Registration successful! Redirecting to dashboard...");
       onLogin(response.data.user);
+      alert("Registration successful! Redirecting to dashboard...");
       navigate("/dashboard");
-      /*
-      setTimeout(() => {
-        navigate("/dashboard"); // redirect to dashboard after successful registration
-      }, 1500);*/
-      // reset form
       setFirstName("");
       setLastName("");
       setEmail("");
       setPassword("");
       setConfirmPassword("");
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      setMessage(error.response?.data?.message || "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
@@ -116,6 +112,8 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">Confirm Password</label>
         </div>
+
+        {message && <div className="message">{message}</div>}
 
         <button 
           type="submit" 
