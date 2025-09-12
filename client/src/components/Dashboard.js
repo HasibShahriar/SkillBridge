@@ -5,53 +5,32 @@ import './Dashboard.css';
 
 function Dashboard({ user }) {
   const navigate = useNavigate();
-  const { userId } = useParams(); // Get userId from URL params
+  const { userId } = useParams(); 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Don't redirect here - let App.js handle authentication
-    if (!user) {
-      return;
-    }
+    if (!user) return;
 
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Debug: fetch all users first (optional - remove in production)
-        try {
-          const allUsersRes = await axios.get('http://localhost:5000/api/dashboard/debug/all-users');
-          console.log('All users from DB:', allUsersRes.data);
-        } catch (debugError) {
-          console.warn('Debug route failed (this is okay):', debugError.message);
-        }
 
-        // Use the user ID from props (since URL params is undefined)
         const targetUserId = user._id || user.id;
-        
-        console.log('Using user ID:', targetUserId);
-        
-        // Fetch the dashboard data
         const token = localStorage.getItem('token');
-        console.log('Token exists:', !!token);
-        console.log('Making request to:', `http://localhost:5000/api/dashboard/${targetUserId}`);
-        
+
         const res = await axios.get(`http://localhost:5000/api/dashboard/${targetUserId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
-        console.log('Dashboard response:', res.data);
-        
+
         setDashboardData(res.data);
-      } catch (error) {
-        console.error('Error fetching dashboard:', error);
-        setError(error.response?.data?.message || 'Failed to load dashboard data');
-        
-        // Only redirect on authentication errors, not general errors
-        if (error.response?.status === 401) {
+      } catch (err) {
+        console.error('Error fetching dashboard:', err);
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
+
+        if (err.response?.status === 401) {
           localStorage.removeItem('user');
           localStorage.removeItem('token');
           navigate('/login', { replace: true });
@@ -62,38 +41,61 @@ function Dashboard({ user }) {
     };
 
     fetchDashboardData();
-  }, [user, userId, navigate]); // Include userId in dependencies
+  }, [user, userId, navigate]);
 
-  if (!user) {
-    return <p>Please log in to view your dashboard.</p>;
-  }
+  if (!user) return <p>Please log in to view your dashboard.</p>;
 
-  if (loading) {
-    return <div className="dashboard-container"><p>Loading user info...</p></div>;
-  }
+  if (loading) return <div className="dashboard-container"><p>Loading dashboard...</p></div>;
 
-  if (error) {
-    return (
-      <div className="dashboard-container">
-        <h2>Dashboard Error</h2>
-        <p style={{ color: 'red' }}>{error}</p>
-        <p>User ID from URL: {userId}</p>
-        <p>User ID from props: {user._id || user.id}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
-      </div>
-    );
-  }
+  if (error) return (
+    <div className="dashboard-container">
+      <h2>Dashboard Error</h2>
+      <p style={{ color: 'red' }}>{error}</p>
+      <p>User ID from URL: {userId}</p>
+      <p>User ID from props: {user._id || user.id}</p>
+      <button onClick={() => window.location.reload()}>Retry</button>
+    </div>
+  );
 
-  if (!dashboardData) {
-    return <div className="dashboard-container"><p>No dashboard data available.</p></div>;
-  }
+  if (!dashboardData) return <div className="dashboard-container"><p>No dashboard data available.</p></div>;
 
   return (
     <div className="dashboard-container">
-      <h1>Welcome, {dashboardData.firstname} {dashboardData.lastname}</h1>
-      <p><strong>Email:</strong> {dashboardData.email}</p>
-      {dashboardData.bio && <p><strong>Bio:</strong> {dashboardData.bio}</p>}
-      <p>Enrolled Courses: {dashboardData.enrolledCourses?.length || 0}</p>
+      {/* Header */}
+      <header className="dashboard-header">
+        <h1>Welcome, {dashboardData.firstname} {dashboardData.lastname}</h1>
+        <p><strong>Email:</strong> {dashboardData.email}</p>
+        {dashboardData.bio && <p className="bio">{dashboardData.bio}</p>}
+      </header>
+
+      {/* Stats */}
+      <section className="stats-section">
+        <div className="stat-card">
+          <h3>Enrolled Courses</h3>
+          <p>{dashboardData.enrolledCourses?.length || 0}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Account Created</h3>
+          <p>{new Date(dashboardData.createdAt).toLocaleDateString()}</p>
+        </div>
+      </section>
+
+      {/* Courses */}
+      <section className="courses-section">
+        <h2>My Courses</h2>
+        {dashboardData.enrolledCourses && dashboardData.enrolledCourses.length > 0 ? (
+          <div className="cards-container">
+            {dashboardData.enrolledCourses.map(course => (
+              <div className="course-card" key={course._id}>
+                <h4>{course.title}</h4>
+                <p>{course.description || "No description provided."}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No enrolled courses yet. Explore and enroll now!</p>
+        )}
+      </section>
     </div>
   );
 }
