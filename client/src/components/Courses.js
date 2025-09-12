@@ -6,8 +6,17 @@ import './Courses.css';
 function Courses() {
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [userId, setUserId] = useState(null);
 
-  // Fetch courses from backend
+  // Get userId from localStorage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?._id) { // Fixed: use _id instead of id
+      setUserId(user._id);
+    }
+  }, []);
+
+  // Fetch all courses
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -20,25 +29,33 @@ function Courses() {
     fetchCourses();
   }, []);
 
-  // Fetch enrolled courses for the user
+  // Fetch enrolled courses for this user
   useEffect(() => {
+    if (!userId) return;
+
     const fetchEnrolledCourses = async () => {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
-        const res = await axios.get('http://localhost:5000/api/courses/user/enrolled', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `http://localhost:5000/api/courses/user/enrolled?userId=${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setEnrolledCourses(res.data.enrolledCourses.map(course => course._id));
       } catch (err) {
         console.error('Error fetching enrolled courses:', err);
       }
     };
     fetchEnrolledCourses();
-  }, []);
+  }, [userId]);
 
-  // Enroll into a course
+  // Enroll user in a course
   const enrollCourse = async (courseId) => {
+    if (!userId) {
+      alert('Please log in to enroll.');
+      return;
+    }
     if (enrolledCourses.includes(courseId)) {
       alert('Already enrolled in this course.');
       return;
@@ -46,14 +63,6 @@ function Courses() {
 
     try {
       const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user'));
-      const userId = user?.id;
-
-      if (!userId || !token) {
-        alert('Please log in to enroll.');
-        return;
-      }
-
       const res = await axios.post(
         'http://localhost:5000/api/courses/enroll',
         { userId, courseId },
@@ -69,23 +78,23 @@ function Courses() {
   };
 
   return (
-    <div className='courses-container'>
+    <div className="courses-container">
       <h1>Courses</h1>
-      <div className='cards-container'>
+      <div className="cards-container">
         {courses.length === 0 ? (
           <p>No courses available. Please add some from backend.</p>
         ) : (
           courses.map(course => (
-            <div key={course._id} className='course-card'>
+            <div key={course._id} className="course-card">
               <h3>{course.title}</h3>
               <p>{course.description}</p>
-              <div className='progress-bar'>
+              <div className="progress-bar">
                 <div
-                  className='progress'
+                  className="progress"
                   style={{ width: `${course.progress || 0}%` }}
                 ></div>
               </div>
-              <p className='progress-text'>{course.progress || 0}% completed</p>
+              <p className="progress-text">{course.progress || 0}% completed</p>
               <button
                 className={enrolledCourses.includes(course._id) ? 'enrolled' : 'enroll-btn'}
                 onClick={() => enrollCourse(course._id)}

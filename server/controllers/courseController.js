@@ -68,18 +68,15 @@ export const enrollCourse = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// Get enrolled courses for a user
+// Get enrolled courses for a user using query param
 export const getEnrolledCourses = async (req, res) => {
   try {
-    const userId = req.user.id; // Extracted from JWT by auth middleware
+    const userId = req.query.userId; // use query param instead of req.user.id
     if (!mongoose.isValidObjectId(userId)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
     const user = await User.findById(userId).populate('enrolledCourses');
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json({ enrolledCourses: user.enrolledCourses });
   } catch (error) {
     res.status(500).json({ message: error.message });

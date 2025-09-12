@@ -4,20 +4,25 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
 
+// Load env variables
 dotenv.config();
+
+// Initialize Express
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/courses', courseRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// MongoDB Atlas connection
+// MongoDB connection
 const PORT = process.env.PORT || 5000;
-
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
