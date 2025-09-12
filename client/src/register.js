@@ -1,3 +1,4 @@
+// client/src/register.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from './api';
@@ -31,12 +32,12 @@ const Register = ({ onLogin }) => {
       return;
     }
 
-    if(password.length < 8) {
+    if (password.length < 8) {
       setMessage("Password must be at least 8 characters long");
       setIsSubmitting(false);
       return;
     }
-    if(password !== confirm_password) {
+    if (password !== confirm_password) {
       setMessage("Passwords do not match");
       setIsSubmitting(false);
       return;
@@ -49,6 +50,7 @@ const Register = ({ onLogin }) => {
         email,
         password
       }, { headers: { "Content-Type": "application/json" } });
+      console.log('Register response:', response.data); // Debug the response
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -60,7 +62,7 @@ const Register = ({ onLogin }) => {
       setConfirmPassword("");
       setSuccess("Registration successful! Redirecting...");
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate(`/dashboard/${response.data.user._id}`); // Use _id
       }, 1000);
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed");
@@ -73,7 +75,6 @@ const Register = ({ onLogin }) => {
     <div className="form-container">
       <form className="modern-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Create New Account</h2>
-        
         <div className="input-group">
           <input
             type="text"
@@ -84,7 +85,6 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">First Name</label>
         </div>
-        
         <div className="input-group">
           <input
             type="text"
@@ -95,7 +95,6 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">Last Name</label>
         </div>
-        
         <div className="input-group">
           <input
             type="email"
@@ -106,7 +105,6 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">Email Address</label>
         </div>
-        
         <div className="input-group">
           <input
             type="password"
@@ -117,7 +115,6 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">Password</label>
         </div>
-
         <div className="input-group">
           <input
             type="password"
@@ -128,12 +125,10 @@ const Register = ({ onLogin }) => {
           />
           <label className="form-label">Confirm Password</label>
         </div>
-
         {message && <div className="message">{message}</div>}
         {success && <div className="success-message">{success}</div>}
-
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="submit-button"
           disabled={isSubmitting}
         >

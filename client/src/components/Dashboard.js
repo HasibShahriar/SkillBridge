@@ -1,85 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Dashboard.css'; // We'll define some simple CSS for layout
+import './Dashboard.css';
 
-function Dashboard() {
-  const { userId } = useParams();
-  const [data, setData] = useState({ courses: [], opportunities: [] });
-  const [searchTerm, setSearchTerm] = useState('');
+function Dashboard({ user }) {
+  const navigate = useNavigate();
+  const { userId } = useParams(); // Get userId from URL params
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/dashboard/${userId}`)
-      .then(response => setData(response.data))
-      .catch(error => console.error('Error fetching dashboard:', error));
-  }, [userId]);
+    // Don't redirect here - let App.js handle authentication
+    if (!user) {
+      return;
+    }
 
-  // Filter courses and opportunities based on search term
-  const filteredCourses = data.courses.filter(course =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Debug: fetch all users first (optional - remove in production)
+        try {
+          const allUsersRes = await axios.get('http://localhost:5000/api/dashboard/debug/all-users');
+          console.log('All users from DB:', allUsersRes.data);
+        } catch (debugError) {
+          console.warn('Debug route failed (this is okay):', debugError.message);
+        }
 
-  const filteredOpportunities = data.opportunities.filter(opportunity =>
-    opportunity.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+        // Use the user ID from props (since URL params is undefined)
+        const targetUserId = user._id || user.id;
+        
+        console.log('Using user ID:', targetUserId);
+        
+        // Fetch the dashboard data
+        const token = localStorage.getItem('token');
+        console.log('Token exists:', !!token);
+        console.log('Making request to:', `http://localhost:5000/api/dashboard/${targetUserId}`);
+        
+        const res = await axios.get(`http://localhost:5000/api/dashboard/${targetUserId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        console.log('Dashboard response:', res.data);
+        
+        setDashboardData(res.data);
+      } catch (error) {
+        console.error('Error fetching dashboard:', error);
+        setError(error.response?.data?.message || 'Failed to load dashboard data');
+        
+        // Only redirect on authentication errors, not general errors
+        if (error.response?.status === 401) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          navigate('/login', { replace: true });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user, userId, navigate]); // Include userId in dependencies
+
+  if (!user) {
+    return <p>Please log in to view your dashboard.</p>;
+  }
+
+  if (loading) {
+    return <div className="dashboard-container"><p>Loading user info...</p></div>;
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-container">
+        <h2>Dashboard Error</h2>
+        <p style={{ color: 'red' }}>{error}</p>
+        <p>User ID from URL: {userId}</p>
+        <p>User ID from props: {user._id || user.id}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return <div className="dashboard-container"><p>No dashboard data available.</p></div>;
+  }
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <h1>Welcome, User {userId}</h1>
-        <input
-          type="text"
-          placeholder="Search courses or opportunities..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </header>
-
-      <section className="stats-section">
-        <div className="stat-card">
-          <h3>Total Courses</h3>
-          <p>{data.courses.length}</p>
-        </div>
-        <div className="stat-card">
-          <h3>Total Opportunities</h3>
-          <p>{data.opportunities.length}</p>
-        </div>
-      </section>
-
-      <section className="courses-section">
-        <h2>My Courses</h2>
-        <div className="cards-container">
-          {filteredCourses.map(course => (
-            <div key={course._id} className="course-card">
-              <h4>{course.title}</h4>
-              <p>{course.description}</p>
-              <div className="progress-bar">
-                <div
-                  className="progress"
-                  style={{ width: `${course.progress || 0}%` }}
-                ></div>
-              </div>
-              <p>{course.progress || 0}% completed</p>
-            </div>
-          ))}
-          {filteredCourses.length === 0 && <p>No courses found.</p>}
-        </div>
-      </section>
-
-      <section className="opportunities-section">
-        <h2>Opportunities</h2>
-        <div className="cards-container">
-          {filteredOpportunities.map(opportunity => (
-            <div key={opportunity._id} className="opportunity-card">
-              <h4>{opportunity.title}</h4>
-              <p><strong>Company:</strong> {opportunity.company}</p>
-              <p><strong>Location:</strong> {opportunity.location}</p>
-              <p><strong>Deadline:</strong> {opportunity.deadline || 'N/A'}</p>
-            </div>
-          ))}
-          {filteredOpportunities.length === 0 && <p>No opportunities found.</p>}
-        </div>
-      </section>
+      <h1>Welcome, {dashboardData.firstname} {dashboardData.lastname}</h1>
+      <p><strong>Email:</strong> {dashboardData.email}</p>
+      {dashboardData.bio && <p><strong>Bio:</strong> {dashboardData.bio}</p>}
+      <p>Enrolled Courses: {dashboardData.enrolledCourses?.length || 0}</p>
     </div>
   );
 }

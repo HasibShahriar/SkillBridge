@@ -1,3 +1,4 @@
+// client/src/login.js
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import './login.css';
@@ -18,11 +19,12 @@ const Login = ({ onLogin }) => {
     setIsSubmitting(true);
     try {
       const res = await api.post("http://localhost:5000/api/user/login", formData);
+      console.log('Login response:', res.data); // Debug the response
       setMessage(res.data.message);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      onLogin(res.data.user);   // update App state
-      navigate("/dashboard");
+      onLogin(res.data.user);
+      navigate(`/dashboard/${res.data.user._id}`); // Use _id
     } catch (error) {
       setMessage(error.response?.data?.message || "Login failed");
     } finally {
@@ -34,7 +36,6 @@ const Login = ({ onLogin }) => {
     <div className="form-container">
       <form className="modern-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Login to Your Account</h2>
-
         <div className="input-group">
           <input
             type="email"
@@ -46,7 +47,6 @@ const Login = ({ onLogin }) => {
           />
           <label className="form-label">Email Address</label>
         </div>
-
         <div className="input-group">
           <input
             type="password"
@@ -58,17 +58,14 @@ const Login = ({ onLogin }) => {
           />
           <label className="form-label">Password</label>
         </div>
-
         {message && <div className="message">{message}</div>}
-
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="submit-button"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
-
         <div className="toggle-form">
           <p>
             Don't have an account?{' '}
