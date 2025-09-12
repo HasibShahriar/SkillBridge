@@ -12,6 +12,8 @@ import Networks from './components/Networks';
 import Login from './login';
 import Register from './register';
 import OpportunityPage from './components/OpportunityPage'; // <-- new page
+import AdminOpportunities from "./components/AdminOpportunities";
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -89,6 +91,18 @@ function App() {
 
         {/* Opportunities page */}
         <Route path="/opportunities" element={<OpportunityPage />} />
+
+        
+        
+        <Route
+  path="/admin/opportunities"
+  element={
+    <ProtectedRoute>
+      {user?.role === "admin" ? <AdminOpportunities /> : <p>Access Denied</p>}
+    </ProtectedRoute>
+  }
+/>
+
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,60 @@
+.admin-opportunity-container {
+  padding: 20px;
+}
+
+.opportunity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 30px;
+  max-width: 500px;
+}
+
+.opportunity-form input,
+.opportunity-form select,
+.opportunity-form textarea {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+.opportunity-form button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.opportunity-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.opportunity-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  width: 300px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.opportunity-card h3 {
+  margin-top: 0;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 8px;
+  cursor: pointer;
+}

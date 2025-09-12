@@ -31,6 +31,12 @@ export default function NavigationBar({ user, onLogout }) {
             <Nav.Link as={NavLink} to="/opportunities">
               Opportunities
             </Nav.Link>
+
+            {user?.role === "admin" && (
+              <Nav.Link as={NavLink} to="/admin/opportunities">
+                Manage Opportunities
+              </Nav.Link>
+            )}
           </Nav>
 
           {user && (

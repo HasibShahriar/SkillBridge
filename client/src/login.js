@@ -11,26 +11,59 @@ const Login = ({ onLogin }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
+    console.log("Input change:", e.target.name, e.target.value); // Debug input
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await api.post("http://localhost:5000/api/user/login", formData);
-      console.log('Login response:', res.data); // Debug the response
-      setMessage(res.data.message);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
-      onLogin(res.data.user);
-      navigate(`/dashboard/${res.data.user._id}`); // Use _id
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
-    } finally {
-      setIsSubmitting(false);
+  try {
+    console.log("Sending login request with data:", formData);
+    
+    // Fix the URL - remove the full baseURL since api.js already has it
+    const res = await api.post("/api/user/login", formData);
+    
+    console.log("=== LOGIN RESPONSE DEBUG ===");
+    console.log("Status:", res.status);
+    console.log("Full response object:", res);
+    console.log("Response data:", res.data);
+    console.log("Token from response:", res.data.token);
+    console.log("User from response:", res.data.user);
+    console.log("================================");
+    
+    const token = res.data.token;
+    const user = res.data.user;
+
+    if (token && user) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      console.log("=== AFTER STORAGE ===");
+      console.log("Stored token:", localStorage.getItem("token"));
+      console.log("Stored user:", localStorage.getItem("user"));
+      console.log("=====================");
+      
+      setMessage(res.data.message || "Login successful!");
+      onLogin(user);
+      navigate(`/dashboard/${user._id}`, { replace: true });
+    } else {
+      console.error("Missing token or user in response");
+      setMessage("Login failed: token or user missing in response.");
     }
-  };
+  } catch (error) {
+    console.error("=== LOGIN ERROR ===");
+    console.error("Error object:", error);
+    console.error("Response data:", error.response?.data);
+    console.error("Status:", error.response?.status);
+    console.error("===================");
+    setMessage(error.response?.data?.message || "Login failed");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+
 
   return (
     <div className="form-container">
@@ -44,8 +77,9 @@ const Login = ({ onLogin }) => {
             onChange={handleChange}
             required
             className="form-input"
+            placeholder="Email Address"
+            disabled={isSubmitting}
           />
-          <label className="form-label">Email Address</label>
         </div>
         <div className="input-group">
           <input
@@ -55,8 +89,9 @@ const Login = ({ onLogin }) => {
             onChange={handleChange}
             required
             className="form-input"
+            placeholder="Password"
+            disabled={isSubmitting}
           />
-          <label className="form-label">Password</label>
         </div>
         {message && <div className="message">{message}</div>}
         <button
@@ -64,11 +99,11 @@ const Login = ({ onLogin }) => {
           className="submit-button"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Logging in...' : 'Login'}
+          {isSubmitting ? "Logging in..." : "Login"}
         </button>
         <div className="toggle-form">
           <p>
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <button
               type="button"
               className="toggle-button"
