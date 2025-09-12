@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
-
+import opportunityRoutes from './routes/opportunityRoutes.js';
 // Load env variables
 dotenv.config();
 
@@ -20,6 +20,7 @@ app.use(express.json());
 app.use('/api/courses', courseRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/opportunities', opportunityRoutes);
 
 // MongoDB connection
 const PORT = process.env.PORT || 5000;

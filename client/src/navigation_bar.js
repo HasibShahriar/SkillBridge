@@ -5,10 +5,10 @@ export default function NavigationBar({ user, onLogout }) {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
-    onLogout();     
-    navigate("/");    
+    onLogout();
+    navigate("/");
   };
-  
+
   return (
     <Navbar bg="dark" expand="lg" className="shadow-sm" variant="dark">
       <Container>
@@ -27,6 +27,9 @@ export default function NavigationBar({ user, onLogout }) {
             </Nav.Link>
             <Nav.Link as={NavLink} to="/networks">
               Networks
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/opportunities">
+              Opportunities
             </Nav.Link>
           </Nav>
 
