@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Course from "../models/Course.js";
 import User from "../models/User.js";
 
@@ -63,6 +64,23 @@ export const enrollCourse = async (req, res) => {
     user.enrolledCourses.push(courseId);
     await user.save();
     res.status(200).json({ message: "Enrolled successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get enrolled courses for a user
+export const getEnrolledCourses = async (req, res) => {
+  try {
+    const userId = req.user.id; // Extracted from JWT by auth middleware
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    const user = await User.findById(userId).populate('enrolledCourses');
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ enrolledCourses: user.enrolledCourses });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
