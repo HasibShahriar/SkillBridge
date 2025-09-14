@@ -1,10 +1,15 @@
 // client/src/pages/AdminOpportunities.js
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./AdminOpportunities.css";
 import { useNavigate } from "react-router-dom";
+import api from '../api'; // Use your configured api instance
 
 function AdminOpportunities() {
+  // Add this at the very beginning
+  console.log("COMPONENT MOUNT - localStorage contents:");
+  console.log("All localStorage keys:", Object.keys(localStorage));
+  console.log("Token from localStorage:", localStorage.getItem("token"));
+  console.log("User from localStorage:", localStorage.getItem("user"));
   const [opportunities, setOpportunities] = useState([]);
   const [form, setForm] = useState({
     title: "",
@@ -14,12 +19,15 @@ function AdminOpportunities() {
     deadline: "",
   });
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
+    // Read token and user fresh from localStorage inside useEffect
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
     // Log token and user for debugging
     console.log("Token:", token, "User:", user);
+    
     // Redirect if not logged in or not an admin
     if (!token || user.role !== "admin") {
       alert("You must be an admin to access this page.");
@@ -31,7 +39,8 @@ function AdminOpportunities() {
 
   const fetchOpportunities = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/opportunities");
+      // Use api instance instead of direct axios
+      const res = await api.get("/api/opportunities");
       setOpportunities(res.data);
     } catch (err) {
       console.error("Fetch error:", err.response?.data || err.message);
@@ -44,15 +53,19 @@ function AdminOpportunities() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Read fresh token and user from localStorage
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
     if (!token || user.role !== "admin") {
       alert("Please log in as an admin to add an opportunity.");
       navigate("/login");
       return;
     }
     try {
-      await axios.post("http://localhost:5000/api/opportunities", form, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Use api instance - it will automatically include the token
+      await api.post("/api/opportunities", form);
       setForm({ title: "", type: "Job", description: "", link: "", deadline: "" });
       fetchOpportunities();
       alert("Opportunity added!");
@@ -63,6 +76,10 @@ function AdminOpportunities() {
   };
 
   const handleDelete = async (id) => {
+    // Read fresh token and user from localStorage
+    const token = localStorage.getItem("token");
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    
     if (!token || user.role !== "admin") {
       alert("Please log in as an admin to delete an opportunity.");
       navigate("/login");
@@ -70,9 +87,8 @@ function AdminOpportunities() {
     }
     if (!window.confirm("Are you sure?")) return;
     try {
-      const response = await axios.delete(`http://localhost:5000/api/opportunities/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Use api instance - it will automatically include the token
+      const response = await api.delete(`/api/opportunities/${id}`);
       fetchOpportunities();
       alert("Opportunity deleted: " + (response.data.message || "Success"));
     } catch (err) {
@@ -140,7 +156,11 @@ function AdminOpportunities() {
             <p>{op.description}</p>
             {op.link && <a href={op.link} target="_blank" rel="noopener noreferrer">More Info</a>}
             {op.deadline && <p><strong>Deadline:</strong> {new Date(op.deadline).toLocaleDateString()}</p>}
-            {token && user.role === "admin" && (
+            {(() => {
+              const token = localStorage.getItem("token");
+              const user = JSON.parse(localStorage.getItem("user") || "{}");
+              return token && user.role === "admin";
+            })() && (
               <button className="delete-btn" onClick={() => handleDelete(op._id)}>Delete</button>
             )}
           </div>

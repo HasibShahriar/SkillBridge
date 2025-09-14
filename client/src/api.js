@@ -10,15 +10,13 @@ const api = axios.create({
 
 // Attach token to requests
 api.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-    }
+    // Temporarily use a hardcoded valid token
+    const hardcodedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YzQzNzNkNDhjZDQ0N2U0OTgyZjUyMCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Nzg4MDkxMiwiZXhwIjoxNzU3ODg0NTEyfQ.0w5Pg3fZnzUowlun5QqFKVR902EDRJu8-odWV57-WfA";
+    
+    config.headers['Authorization'] = `Bearer ${hardcodedToken}`;
     return config;
 }, error => {
     return Promise.reject(error);
 });
-
-
 
 export default api;

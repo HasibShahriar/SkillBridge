@@ -20,49 +20,45 @@ const handleSubmit = async (e) => {
 
   try {
     console.log("Sending login request with data:", formData);
-    
-    // Fix the URL - remove the full baseURL since api.js already has it
     const res = await api.post("/api/user/login", formData);
     
-    console.log("=== LOGIN RESPONSE DEBUG ===");
-    console.log("Status:", res.status);
-    console.log("Full response object:", res);
-    console.log("Response data:", res.data);
-    console.log("Token from response:", res.data.token);
-    console.log("User from response:", res.data.user);
-    console.log("================================");
+    // Debug the response
+    console.log("Full response:", res.data);
     
-    const token = res.data.token;
-    const user = res.data.user;
-
-    if (token && user) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      console.log("=== AFTER STORAGE ===");
-      console.log("Stored token:", localStorage.getItem("token"));
-      console.log("Stored user:", localStorage.getItem("user"));
-      console.log("=====================");
-      
-      setMessage(res.data.message || "Login successful!");
-      onLogin(user);
-      navigate(`/dashboard/${user._id}`, { replace: true });
-    } else {
-      console.error("Missing token or user in response");
-      setMessage("Login failed: token or user missing in response.");
+    const { token, user, message } = res.data;
+    
+    // Check if token actually exists and is valid
+    if (!token || token === 'undefined' || typeof token !== 'string') {
+      console.error("Invalid token received:", token);
+      setMessage("Login failed: Invalid token received");
+      return;
     }
+    
+    if (!user || !user._id) {
+      console.error("Invalid user received:", user);
+      setMessage("Login failed: Invalid user data received");
+      return;
+    }
+
+    // Store only if valid
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+    
+    // Verify storage worked
+    console.log("Stored token:", localStorage.getItem("token"));
+    console.log("Stored user:", localStorage.getItem("user"));
+    
+    setMessage(message || "Login successful!");
+    onLogin(user);
+    navigate(`/dashboard/${user._id}`, { replace: true });
+    
   } catch (error) {
-    console.error("=== LOGIN ERROR ===");
-    console.error("Error object:", error);
-    console.error("Response data:", error.response?.data);
-    console.error("Status:", error.response?.status);
-    console.error("===================");
+    console.error("Login error:", error.response?.data);
     setMessage(error.response?.data?.message || "Login failed");
   } finally {
     setIsSubmitting(false);
   }
 };
-
 
 
   return (
