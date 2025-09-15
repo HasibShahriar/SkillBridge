@@ -21,7 +21,7 @@ const Login = ({ onLogin }) => {
       setMessage(res.data.message);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      onLogin(res.data.user);   // update App state
+      onLogin(res.data.user, res.data.token); 
       navigate("/dashboard");
     } catch (error) {
       setMessage(error.response?.data?.message || "Login failed");

@@ -50,9 +50,11 @@ const Register = ({ onLogin }) => {
         password
       }, { headers: { "Content-Type": "application/json" } });
       setMessage(response.data.message);
+
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
-      onLogin(response.data.user);
+      onLogin(response.data.user, response.data.token); 
+      
       setFirstName("");
       setLastName("");
       setEmail("");

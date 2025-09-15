@@ -21,7 +21,7 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(response => {
     return response;
 }, error => {
-    const status = error.response || {};
+    const status = error.response?.status;
 
     if (status === 401 || status === 403) {
         localStorage.removeItem('token');

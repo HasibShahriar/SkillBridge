@@ -7,6 +7,15 @@ const userschema = new mongoose.Schema(
     lastname: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    bio: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    address: { type: String, default: "" },
+    socialLinks: {
+      facebook: { type: String, default: "" },
+      instagram: { type: String, default: "" },
+      twitter: { type: String, default: "" },
+    },
+    courses: { type: [String], default: [] },
     enrolledCourses: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Course" }
     ]

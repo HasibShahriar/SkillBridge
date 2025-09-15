@@ -43,7 +43,7 @@ const userData = [
     name: "Jos Buttler",
     role: "Software Engineer",
     skills: ["DSA", "Python", "Rust"], 
-    connected: true
+    connected: false
   },
   {
     id: 7,
