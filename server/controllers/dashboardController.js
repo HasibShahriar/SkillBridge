@@ -1,70 +1,81 @@
-import Course from "../models/Course.js";
-import User from "../models/User.js";
-import mongoose from "mongoose";
+// client/src/components/Dashboard.js
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './Dashboard.css';
 
-// Get all courses
-export const getCourses = async (req, res) => {
-  try {
-    const courses = await Course.find();
-    res.status(200).json(courses);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+function Dashboard({ user }) {
+  const { userId } = useParams();
+  const navigate = useNavigate();
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-// Add a new course
-export const addCourse = async (req, res) => {
-  try {
-    const { title, description } = req.body;
-    const course = new Course({ title, description });
-    await course.save();
-    res.status(201).json(course);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  useEffect(() => {
+    if (!user) return; // ProtectedRoute ensures login
 
-// Update course progress
-export const updateProgress = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { progress } = req.body;
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({ message: "Invalid course ID" });
-    }
-    const course = await Course.findByIdAndUpdate(
-      id,
-      { progress },
-      { new: true }
-    );
-    if (!course) {
-      return res.status(404).json({ message: "Course not found" });
-    }
-    res.status(200).json(course);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+    const actualUserId = user._id || user.id;
 
-// Enroll a user in a course
-export const enrollCourse = async (req, res) => {
-  try {
-    const { userId, courseId } = req.body;
-    if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(courseId)) {
-      return res.status(400).json({ message: "Invalid user or course ID" });
+    // If URL is wrong, redirect to correct dashboard URL
+    if (userId !== actualUserId) {
+      navigate(`/dashboard/${actualUserId}`, { replace: true });
+      return;
     }
-    const user = await User.findById(userId);
-    const course = await Course.findById(courseId);
-    if (!user || !course) {
-      return res.status(404).json({ message: "User or course not found" });
-    }
-    if (user.enrolledCourses.includes(courseId)) {
-      return res.status(400).json({ message: "Already enrolled in this course" });
-    }
-    user.enrolledCourses.push(courseId);
-    await user.save();
-    res.status(200).json({ message: "Enrolled successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/api/dashboard/${actualUserId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setDashboardData(response.data);
+      } catch (error) {
+        console.error('Error fetching dashboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [user, userId, navigate]);
+
+  if (loading) return <p>Loading dashboard...</p>;
+  if (!dashboardData) return <p>No user data found</p>;
+
+  return (
+    <div className="dashboard-container">
+      <header className="dashboard-header">
+        <h1>Welcome, {dashboardData.firstname} {dashboardData.lastname}</h1>
+        <p><strong>Email:</strong> {dashboardData.email}</p>
+        {dashboardData.bio && <p><strong>Bio:</strong> {dashboardData.bio}</p>}
+      </header>
+
+      <section className="stats-section">
+        <div className="stat-card">
+          <h3>Enrolled Courses</h3>
+          <p>{dashboardData.enrolledCourses?.length || 0}</p>
+        </div>
+        <div className="stat-card">
+          <h3>Account Created</h3>
+          <p>{new Date(dashboardData.createdAt).toLocaleDateString()}</p>
+        </div>
+      </section>
+
+      <section className="courses-section">
+        <h2>My Courses</h2>
+        {dashboardData.enrolledCourses && dashboardData.enrolledCourses.length > 0 ? (
+          <ul>
+            {dashboardData.enrolledCourses.map(course => (
+              <li key={course._id}>
+                {course.title} - {course.description} ({course.progress || 0}% completed)
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No enrolled courses.</p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+export default Dashboard;

@@ -5,10 +5,10 @@ export default function NavigationBar({ user, onLogout }) {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
-    onLogout();     
-    navigate("/");    
+    onLogout();
+    navigate("/");
   };
-  
+
   return (
     <Navbar bg="dark" expand="lg" className="shadow-sm" variant="dark">
       <Container>
@@ -19,9 +19,24 @@ export default function NavigationBar({ user, onLogout }) {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link as={NavLink} to="/dashboard">Dashboard</Nav.Link>
-            <Nav.Link as={NavLink} to="/courses">Courses</Nav.Link>
-            <Nav.Link as={NavLink} to="/networks">Networks</Nav.Link>
+            <Nav.Link as={NavLink} to="/dashboard">
+              Dashboard
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/courses">
+              Courses
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/networks">
+              Networks
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/opportunities">
+              Opportunities
+            </Nav.Link>
+            
+            {user?.role === "admin" && (
+              <Nav.Link as={NavLink} to="/admin/opportunities">
+                Manage Opportunities
+              </Nav.Link>
+            )}
           </Nav>
           <Nav>
             {user ? (
