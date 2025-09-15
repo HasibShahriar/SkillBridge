@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import userRoutes from './routes/userRoutes.js';
+import route from './routes/route.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import opportunityRoutes from './routes/opportunityRoutes.js';
@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/courses', courseRoutes);
-app.use('/api/user', userRoutes);
+app.use('/api/user', route);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/opportunities', opportunityRoutes);
 

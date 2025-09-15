@@ -1,15 +1,16 @@
 // server/routes/route.js
 import express from 'express';
 import { loginUser, newUser, getProfile, updateProfile } from '../controllers/userController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { protect } from '../middleware/authMiddleware.js'; // Fixed: import 'protect' instead of 'authMiddleware'
 
 const router = express.Router();
 
+// Public routes
 router.post('/login', loginUser);
 router.post('/register', newUser);
 
-// profile routes by user id
-router.get("/profile", authMiddleware, getProfile);
-router.put("/profile", authMiddleware, updateProfile);
+// Protected routes - using 'protect' middleware
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
 
 export default router;
