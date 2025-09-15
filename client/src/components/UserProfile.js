@@ -30,17 +30,18 @@ export default function UserProfile() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const stored = JSON.parse(localStorage.getItem("user") || "{}");
-        const email = stored?.email || stored?.user?.email;
-        if (!email) {
-          setError("Not logged in");
+        // Fix: Get token from localStorage directly, not from user object
+        const token = localStorage.getItem("token");
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        
+        if (!token) {
+          setError("Not logged in - no token found");
           setLoading(false);
           return;
         }
 
-        const res = await api.get("/api/user/profile", {
-          headers: { Authorization: `Bearer ${stored.token}` }
-        });
+        // Fix: Use the correct API call (token is already attached via interceptor)
+        const res = await api.get("/api/user/profile");
 
         const user = res.data;
         setFormData({
@@ -55,7 +56,15 @@ export default function UserProfile() {
         setError(null);
       } catch (err) {
         console.error("fetchProfile err", err);
-        setError("Failed to load profile");
+        if (err.response?.status === 401) {
+          setError("Session expired. Please login again.");
+          // Clear invalid token
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        } else {
+          setError("Failed to load profile");
+        }
       } finally {
         setLoading(false);
       }
@@ -65,7 +74,6 @@ export default function UserProfile() {
   }, []);
   
   const handleInputChange = (field, value) => {
-    
     if (field.includes(".")) {
       const [parent, child] = field.split(".");
       setFormData(prev => ({ ...prev, [parent]: { ...(prev[parent] || {}), [child]: value } }));
@@ -80,45 +88,52 @@ export default function UserProfile() {
   };
 
   const updateProfile = async (payload) => {
-  try {
-    setIsUpdating(true);
-    const stored = JSON.parse(localStorage.getItem("user") || "{}");
-    const email = stored?.email || stored?.user?.email;
-    if (!email) throw new Error("User email missing");
+    try {
+      setIsUpdating(true);
+      
+      // Fix: Get token from localStorage directly
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
 
-    const res = await api.put('/api/user/profile', payload, {
-      headers: { Authorization: `Bearer ${stored.token}` }
-    });
+      // The token is already attached via the interceptor in api.js, so no need to manually add headers
+      const res = await api.put('/api/user/profile', payload);
 
-    const user = res.data;
-    setFormData(prev => ({
-      ...prev,
-      name: user.name || `${user.firstname || ""} ${user.lastname || ""}`.trim(),
-      email: user.email || prev.email,
-      bio: user.bio || prev.bio,
-      phone: user.phone || prev.phone,
-      address: user.address || prev.address,
-      socialLinks: user.socialLinks || prev.socialLinks,
-      courses: user.courses || prev.courses
-    }));
-    alert("Profile updated successfully!");
-  } catch (err) {
-    console.error("updateProfile err", err);
-    if (err.response) {
-      // Server responded with error status
-      const errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
-      alert(`Failed to update profile: ${errorMessage}`);
-    } else if (err.request) {
-      // Network error
-      alert("Failed to update profile: Network error. Please check your connection.");
-    } else {
-      // Other error
-      alert(`Failed to update profile: ${err.message}`);
+      const user = res.data;
+      setFormData(prev => ({
+        ...prev,
+        name: user.name || `${user.firstname || ""} ${user.lastname || ""}`.trim(),
+        email: user.email || prev.email,
+        bio: user.bio || prev.bio,
+        phone: user.phone || prev.phone,
+        address: user.address || prev.address,
+        socialLinks: user.socialLinks || prev.socialLinks,
+        courses: user.courses || prev.courses
+      }));
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("updateProfile err", err);
+      if (err.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else if (err.response) {
+        // Server responded with error status
+        const errorMessage = err.response.data?.message || `Server error: ${err.response.status}`;
+        alert(`Failed to update profile: ${errorMessage}`);
+      } else if (err.request) {
+        // Network error
+        alert("Failed to update profile: Network error. Please check your connection.");
+      } else {
+        // Other error
+        alert(`Failed to update profile: ${err.message}`);
+      }
+    } finally {
+      setIsUpdating(false);
     }
-  } finally {
-    setIsUpdating(false);
-  }
-};
+  };
 
   const handleBasicInfoSave = () => {
     updateProfile({ name: formData.name, email: formData.email, phone: formData.phone, address: formData.address });
