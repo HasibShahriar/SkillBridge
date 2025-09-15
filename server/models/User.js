@@ -35,6 +35,26 @@ const userSchema = new mongoose.Schema({
     maxlength: [500, 'Bio cannot exceed 500 characters'],
     default: ''
   },
+  phone: { 
+    type: String, 
+    default: "",
+    trim: true,
+    match: [/^[\+]?[1-9][\d]{0,15}$/, 'Please provide a valid phone number']
+  },
+  address: { 
+    type: String, 
+    default: "",
+    maxlength: [200, 'Address cannot exceed 200 characters']
+  },
+  socialLinks: {
+    facebook: { type: String, default: "" },
+    instagram: { type: String, default: "" },
+    twitter: { type: String, default: "" },
+  },
+  courses: { 
+    type: [String], 
+    default: [] 
+  },
   enrolledCourses: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course'

@@ -31,23 +31,34 @@ export default function NavigationBar({ user, onLogout }) {
             <Nav.Link as={NavLink} to="/opportunities">
               Opportunities
             </Nav.Link>
-
+            
             {user?.role === "admin" && (
               <Nav.Link as={NavLink} to="/admin/opportunities">
                 Manage Opportunities
               </Nav.Link>
             )}
           </Nav>
-
-          {user && (
-            <Button
-              variant="outline-light"
-              onClick={handleLogoutClick}
-              className="ms-auto"
-            >
-              Logout
-            </Button>
+          <Nav>
+            {user ? (
+              <>
+                <Button as={Link} to="/profile" variant="outline-info" className="me-2">
+                  My Profile
+                </Button>
+                <Button onClick={handleLogoutClick} variant="outline-secondary">
+                  Logout
+                </Button>
+              </>
+            ) : (
+            <>
+              <Button as={Link} to="/login" variant="outline-primary" className="me-2">
+                Login
+              </Button>
+              <Button as={Link} to="/register" variant="primary">
+                Register
+              </Button>
+            </>
           )}
+        </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
